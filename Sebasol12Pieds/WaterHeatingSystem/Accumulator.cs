@@ -6,51 +6,51 @@ using System.Threading.Tasks;
 
 namespace Sebasol12Pieds
 {
-    public class Accumulator
+    public class Accumulator : IAcumulator
     {
-        public Accumulator(Ds18b20 topTemperatureSensor, Ds18b20 centerTemperatureSensor, Ds18b20 bottomTemperatureSensor, List<Ds18b20> ds18B20s)
+        public Accumulator(Ds18b20 topTemperatureSensor, Ds18b20 centerTemperatureSensor, Ds18b20 bottomTemperatureSensor)
         {
-            SondeHaut = topTemperatureSensor;
-            SondeCentre = centerTemperatureSensor;
-            SondeBas = bottomTemperatureSensor;
+            TopTemperatureSensor = topTemperatureSensor;
+            CenterTemperatureSensor = centerTemperatureSensor;
+            BottomTemperatureSensor = bottomTemperatureSensor;
 
             _menu = new Menu("Accumulateur : ");
-            InitilizeMenu(ds18B20s);
+            InitilizeMenu();
         }
 
-        public Ds18b20 SondeHaut { get; set; }
-        public Ds18b20 SondeCentre { get; set; }
-        public Ds18b20 SondeBas { get; set; }
+        public Ds18b20 TopTemperatureSensor { get; set; }
+        public Ds18b20 CenterTemperatureSensor { get; set; }
+        public Ds18b20 BottomTemperatureSensor { get; set; }
 
-        public double TemperatureHaut
+        public double TopTemperature
         {
             get
             {
-                return SondeHaut == null ? double.NaN : SondeHaut.Temperature;
+                return TopTemperatureSensor == null ? double.NaN : TopTemperatureSensor.Temperature;
             }
         }
 
-        public double TemperatureCentre
+        public double CenterTemperature
         {
             get
             {
-                return SondeCentre == null ? double.NaN : SondeCentre.Temperature;
+                return CenterTemperatureSensor == null ? double.NaN : CenterTemperatureSensor.Temperature;
             }
         }
 
-        public double TemperatureBas
+        public double BottomTemperature
         {
             get
             {
-                return SondeBas == null ? double.NaN : SondeBas.Temperature;
+                return BottomTemperatureSensor == null ? double.NaN : BottomTemperatureSensor.Temperature;
             }
         }
 
         public override string ToString()
         {
-            return "Sonde du haut : " + (SondeHaut==null? "null": SondeHaut.ToString()) + "\n" +
-                   "Sonde du centre : " + (SondeCentre == null ? "null" : SondeCentre.ToString()) + "\n" +
-                   "Sonde du bas : " + (SondeBas == null ? "null" : SondeBas.ToString());
+            return "Sonde du haut : " + (TopTemperatureSensor==null? "null": TopTemperatureSensor.ToString()) + "\n" +
+                   "Sonde du centre : " + (CenterTemperatureSensor == null ? "null" : CenterTemperatureSensor.ToString()) + "\n" +
+                   "Sonde du bas : " + (BottomTemperatureSensor == null ? "null" : BottomTemperatureSensor.ToString());
         }
 
         public void StartMenu()
@@ -60,7 +60,7 @@ namespace Sebasol12Pieds
 
         private Menu _menu;
 
-        private void InitilizeMenu(List<Ds18b20> ds18B20s)
+        private void InitilizeMenu()
         {
             _menu.AddOption(new Option("Visualiser l'état.", () =>
             {
@@ -73,23 +73,23 @@ namespace Sebasol12Pieds
 
             _menu.AddOption(new Option("Modifier la sonde du haut.", () =>
             {
-                SondeHaut = Ds18b20Finder.SelectDs18B20(ds18B20s);
+                TopTemperatureSensor = Ds18b20Finder.SelectDs18B20();
             }));
 
             _menu.AddOption(new Option("Modifier la sonde du centre.", () =>
             {
-                SondeCentre = Ds18b20Finder.SelectDs18B20(ds18B20s);
+                CenterTemperatureSensor = Ds18b20Finder.SelectDs18B20();
             }));
 
             _menu.AddOption(new Option("Modifier la sonde du bas.", () =>
             {
-                SondeBas = Ds18b20Finder.SelectDs18B20(ds18B20s);
+                BottomTemperatureSensor = Ds18b20Finder.SelectDs18B20();
             }));
 
             _menu.AddOption(new Option("Modifier les paramètres de la sonde du haut.", () =>
             {
-                if (SondeHaut != null)
-                    SondeHaut.StartMenu();
+                if (TopTemperatureSensor != null)
+                    TopTemperatureSensor.StartMenu();
                 else
                 {
                     Console.Clear();
@@ -102,8 +102,8 @@ namespace Sebasol12Pieds
 
             _menu.AddOption(new Option("Modifier les paramètres de la sonde du centre.", () =>
             {
-                if (SondeCentre != null)
-                    SondeCentre.StartMenu();
+                if (CenterTemperatureSensor != null)
+                    CenterTemperatureSensor.StartMenu();
                 else
                 {
                     Console.Clear();
@@ -116,8 +116,8 @@ namespace Sebasol12Pieds
 
             _menu.AddOption(new Option("Modifier les paramètres de la sonde du bas.", () =>
             {
-                if (SondeBas != null)
-                    SondeBas.StartMenu();
+                if (BottomTemperatureSensor != null)
+                    BottomTemperatureSensor.StartMenu();
                 else
                 {
                     Console.Clear();

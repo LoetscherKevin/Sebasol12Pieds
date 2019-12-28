@@ -6,60 +6,61 @@ using System.Threading.Tasks;
 
 namespace Sebasol12Pieds
 {
-    public abstract class WaterHeater
+    public class WaterHeater : IWaterHeater
     {
-        public WaterHeater(Ds18b20 inputTemperatureSensor, Ds18b20 outputTemperatureSensor, double flow, List<Ds18b20> ds18B20s)
+        public WaterHeater(Ds18b20 inputTemperatureSensor, Ds18b20 outputTemperatureSensor, double flow, string name)
         {
-            SondeEntree = inputTemperatureSensor;
-            SondeSortie = outputTemperatureSensor;
-            Debit = flow;
-            Menu = new Menu(Nom + ": ");
-            InitilizeMenu(ds18B20s);
+            InputTemperatureSensor = inputTemperatureSensor;
+            OutputTemperatureSensor = outputTemperatureSensor;
+            Flow = flow;
+            Name = name;
+            Menu = new Menu(Name + ": ");
+            InitilizeMenu();
         }
 
-        public double Debit { get; set; } // dm^3/s
-        public double TemperatureEntree
-        {
-            get
-            {
-                return SondeEntree == null ? double.NaN : SondeEntree.Temperature;
-            }
-        }
-
-        public double TemperatureSortie
+        public double Flow { get; set; } // dm^3/s
+        public double InputTemperature
         {
             get
             {
-                return SondeSortie == null ? double.NaN : SondeSortie.Temperature;
+                return InputTemperatureSensor == null ? double.NaN : InputTemperatureSensor.Temperature;
             }
         }
 
-        public double DifferenceTemperature
+        public double OutputTemperature
         {
             get
             {
-                return (SondeSortie == null? double.NaN: TemperatureSortie) - (SondeEntree == null ? double.NaN : TemperatureEntree);
+                return OutputTemperatureSensor == null ? double.NaN : OutputTemperatureSensor.Temperature;
             }
         }
 
-        public double Puissance
+        public double TemperatureDelta
         {
             get
             {
-                return DifferenceTemperature * Debit * 4187; // 4187 = contant of water heating J/kg/K
+                return (OutputTemperatureSensor == null? double.NaN: OutputTemperature) - (InputTemperatureSensor == null ? double.NaN : InputTemperature);
             }
         }
 
-        public Ds18b20 SondeEntree { get; set; }
-        public Ds18b20 SondeSortie { get; set; }
+        public double Power
+        {
+            get
+            {
+                return TemperatureDelta * Flow * 4187; // 4187 = contant of water heating J/kg/K
+            }
+        }
+
+        public Ds18b20 InputTemperatureSensor { get; set; }
+        public Ds18b20 OutputTemperatureSensor { get; set; }
 
         public override string ToString()
         {
-            return "Sonde d'entrée : " + (SondeEntree == null? "null": SondeEntree.ToString()) + "\n" +
-                   "Sonde de sortie : " + (SondeSortie == null ? "null" : SondeSortie.ToString()) + "\n" +
-                   "Débit : " + (Debit * 60.0).ToString() + " (l/min)\n" + 
-                   "Différence de température : " + DifferenceTemperature + "\n" +
-                   "Puissance : " + Puissance;
+            return "Sonde d'entrée : " + (InputTemperatureSensor == null? "null": InputTemperatureSensor.ToString()) + "\n" +
+                   "Sonde de sortie : " + (OutputTemperatureSensor == null ? "null" : OutputTemperatureSensor.ToString()) + "\n" +
+                   "Débit : " + (Flow * 60.0).ToString() + " (l/min)\n" + 
+                   "Différence de température : " + TemperatureDelta + "\n" +
+                   "Puissance : " + Power;
         }
 
         public void StartMenu()
@@ -67,16 +68,16 @@ namespace Sebasol12Pieds
             Menu.Display();
         }
 
-        protected abstract string Nom { get; }
+        protected string Name { get; }
 
         protected Menu Menu { get; }
 
-        private void InitilizeMenu(List<Ds18b20> ds18B20s)
+        private void InitilizeMenu()
         {
             Menu.AddOption(new Option("Visualiser l'état.", () =>
             {
                 Console.Clear();
-                Console.WriteLine(Nom + " : ");
+                Console.WriteLine(Name + " : ");
                 Console.WriteLine(ToString());
                 Console.WriteLine();
                 Console.WriteLine("Pressez <enter> pour continuer ...");
@@ -85,18 +86,18 @@ namespace Sebasol12Pieds
 
             Menu.AddOption(new Option("Choisir la sonde d'entrée.", () =>
             {
-                SondeEntree = Ds18b20Finder.SelectDs18B20(ds18B20s);
+                InputTemperatureSensor = Ds18b20Finder.SelectDs18B20();
             }));
 
             Menu.AddOption(new Option("Choisir la sonde de sortie.", () =>
             {
-                SondeSortie = Ds18b20Finder.SelectDs18B20(ds18B20s);
+                OutputTemperatureSensor = Ds18b20Finder.SelectDs18B20();
             }));
 
             Menu.AddOption(new Option("Modifier les paramètres de la sonde d'entrée.", () =>
             {
-                if (SondeEntree != null)
-                    SondeEntree.StartMenu();
+                if (InputTemperatureSensor != null)
+                    InputTemperatureSensor.StartMenu();
                 else
                 {
                     Console.Clear();
@@ -109,8 +110,8 @@ namespace Sebasol12Pieds
 
             Menu.AddOption(new Option("Modifier les paramètres de la sonde de sortie.", () =>
             {
-                if (SondeSortie != null)
-                    SondeSortie.StartMenu();
+                if (OutputTemperatureSensor != null)
+                    OutputTemperatureSensor.StartMenu();
                 else
                 {
                     Console.Clear();
@@ -123,7 +124,7 @@ namespace Sebasol12Pieds
 
             Menu.AddOption(new Option("Modifier le débit.", () =>
             {
-                Debit = ConsoleUtils.ReadPositiveReal("Choisir le débit (l/min) : ") / 60.0;
+                Flow = ConsoleUtils.ReadPositiveReal("Choisir le débit (l/min) : ") / 60.0;
             }));
 
             Menu.AddOption(new Option("Retour", () =>

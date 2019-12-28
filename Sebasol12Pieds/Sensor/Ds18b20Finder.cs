@@ -21,8 +21,10 @@ namespace Sebasol12Pieds
             return ds18B20Sensors;
         }
 
-        public static Ds18b20 SelectDs18B20(List<Ds18b20> ds18B20s)
+        public static Ds18b20 SelectDs18B20()
         {
+            List<Ds18b20> ds18B20s = FindDs18b20();
+
             int sensorNumber = 1;
             int choice;
             Console.Clear();

@@ -6,26 +6,25 @@ using System.Threading.Tasks;
 
 namespace Sebasol12Pieds
 {
-   public class HeatingSystem
-   {
-        public HeatingSystem(List<Ds18b20> ds18B20s)
+   public class HeatingSystem: IHeatingSystem
+    {
+        public HeatingSystem()
         {
-            PanneauxSolaires = new SolarPanel(null,null, 12.0/60.0, ds18B20s);
-            PoeleHydraulique = new WaterStove(null, null, 12.0/60.0, ds18B20s);
-            Accumulateur = new Accumulator(null, null, null, ds18B20s);
-            Chaudiere = new GazBoiler(null, null, 20.0 / 60.0, ds18B20s);
-            Maison = new Home(null, ds18B20s);
-            _ds18B20s = ds18B20s;
+            SolarPanel = new WaterHeater(null,null, 12.0/60.0, "Panneaux solaires");
+            WaterStove = new WaterHeater(null, null, 12.0/60.0, "Poêle");
+            Accumulator = new Accumulator(null, null, null);
+            GazBoiler = new WaterHeater(null, null, 20.0 / 60.0, "Chaudière");
+            Home = new Home(null);
 
             _menu = new Menu("******************* Sebasol 12 Pieds *******************");
             InitilizeMenu();
         }
 
-        public SolarPanel PanneauxSolaires { get; set; }
-        public WaterStove PoeleHydraulique { get; set; }
-        public GazBoiler Chaudiere { get; set; }
-        public Accumulator Accumulateur { get; set; }
-        public Home Maison { get; set; }
+        public WaterHeater SolarPanel { get; set; }
+        public WaterHeater WaterStove { get; set; }
+        public WaterHeater GazBoiler { get; set; }
+        public Accumulator Accumulator { get; set; }
+        public Home Home { get; set; }
 
         public string Infos
         {
@@ -35,13 +34,23 @@ namespace Sebasol12Pieds
             }
         }
 
+        public IAcumulator IAccumulator => Accumulator;
+
+        public IWaterHeater ISolarPanel => SolarPanel;
+
+        public IWaterHeater IWaterStove => WaterStove;
+
+        public IWaterHeater IGazBoiler => GazBoiler;
+
+        public IHome IHome => Home;
+
         public override string ToString()
         {
-            return "Panneaux solaire : \n" + PanneauxSolaires.ToString() + "\n\n" +
-                   "Poele : \n" + PoeleHydraulique.ToString() + "\n\n" +
-                   "Chaudière : \n" + Chaudiere.ToString() + "\n\n" +
-                   "Accumulateur : \n" + Accumulateur.ToString() + "\n\n" + 
-                   "Maison : \n" + Maison.ToString();
+            return "Panneaux solaire : \n" + SolarPanel.ToString() + "\n\n" +
+                   "Poele : \n" + WaterStove.ToString() + "\n\n" +
+                   "Chaudière : \n" + GazBoiler.ToString() + "\n\n" +
+                   "Accumulateur : \n" + Accumulator.ToString() + "\n\n" + 
+                   "Maison : \n" + Home.ToString();
         }
 
         public void StartMenu()
@@ -62,27 +71,27 @@ namespace Sebasol12Pieds
 
             _menu.AddOption(new Option("Modifier les paramètres des panneaux solaires.", () =>
             {
-                PanneauxSolaires.StartMenu();
+                SolarPanel.StartMenu();
             }));
 
             _menu.AddOption(new Option("Modifier les paramètres du poêle hydraulique.", () =>
             {
-                PoeleHydraulique.StartMenu();
+                WaterStove.StartMenu();
             }));
 
             _menu.AddOption(new Option("Modifier les paramètres de la chaudière.", () =>
             {
-                Chaudiere.StartMenu();
+                GazBoiler.StartMenu();
             }));
 
             _menu.AddOption(new Option("Modifier les paramètres de l'accumulateur.", () =>
             {
-                Accumulateur.StartMenu();
+                Accumulator.StartMenu();
             }));
 
             _menu.AddOption(new Option("Modifier les paramètres de la maison.", () =>
             {
-                Maison.StartMenu();
+                Home.StartMenu();
             }));
 
             _menu.AddOption(new Option("Quitter.", () =>
@@ -92,7 +101,5 @@ namespace Sebasol12Pieds
         }
 
         private Menu _menu;
-
-        private List<Ds18b20> _ds18B20s;
     }
 }

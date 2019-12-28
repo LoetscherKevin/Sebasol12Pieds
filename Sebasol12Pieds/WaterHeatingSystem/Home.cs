@@ -6,29 +6,29 @@ using System.Threading.Tasks;
 
 namespace Sebasol12Pieds
 {
-    public class Home
+    public class Home : IHome
     {
-        public Home(Ds18b20 ds18B20, List<Ds18b20> ds18B20s)
+        public Home(Ds18b20 ds18B20)
         {
-            SondeInterieur = ds18B20;
+            InsideTemperatureSensor = ds18B20;
 
             _menu = new Menu("Maison : ");
-            InitilizeMenu(ds18B20s);
+            InitilizeMenu();
         }
 
-        public Ds18b20 SondeInterieur { get; set; }
+        public Ds18b20 InsideTemperatureSensor { get; set; }
 
-        public double Temperature
+        public double InsideTemperature
         {
             get
             {
-                return SondeInterieur.Temperature;
+                return InsideTemperatureSensor.Temperature;
             }
         }
 
         public override string ToString()
         {
-            return "Sonde  : " + (SondeInterieur == null ? "null" : SondeInterieur.ToString());
+            return "Sonde  : " + (InsideTemperatureSensor == null ? "null" : InsideTemperatureSensor.ToString());
         }
 
         public void StartMenu()
@@ -36,7 +36,7 @@ namespace Sebasol12Pieds
             _menu.Display();
         }
 
-        private void InitilizeMenu(List<Ds18b20> ds18B20s)
+        private void InitilizeMenu()
         {
             _menu.AddOption(new Option("Visualiser l'état.", () =>
             {
@@ -50,13 +50,13 @@ namespace Sebasol12Pieds
 
             _menu.AddOption(new Option("Choisir la sonde d'intérieur.", () =>
             {
-                SondeInterieur = Ds18b20Finder.SelectDs18B20(ds18B20s);
+                InsideTemperatureSensor = Ds18b20Finder.SelectDs18B20();
             }));
 
             _menu.AddOption(new Option("Modifier les paramètres de la sonde d'intérieur.", () =>
             {
-                if (SondeInterieur != null)
-                    SondeInterieur.StartMenu();
+                if (InsideTemperatureSensor != null)
+                    InsideTemperatureSensor.StartMenu();
                 else
                 {
                     Console.Clear();
