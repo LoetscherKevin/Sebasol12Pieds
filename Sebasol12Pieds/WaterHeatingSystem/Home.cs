@@ -22,7 +22,7 @@ namespace Sebasol12Pieds
         {
             get
             {
-                return InsideTemperatureSensor.Temperature;
+                return InsideTemperatureSensor == null ? double.NaN: InsideTemperatureSensor.Temperature;
             }
         }
 

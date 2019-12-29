@@ -62,22 +62,22 @@ namespace Sebasol12Pieds
                 AccumulatorCenterTemperature = _heatingSystem.IAccumulator.CenterTemperature,
                 AccumulatorBottomTemperature = _heatingSystem.IAccumulator.BottomTemperature,
 
-                // SolarPanel
+                //// SolarPanel
                 SolarPanelInputTemperature = _heatingSystem.ISolarPanel.InputTemperature,
                 SolarPanelOutputTemperature = _heatingSystem.ISolarPanel.OutputTemperature,
                 SolarPanelFlow = _heatingSystem.ISolarPanel.Flow,
 
-                // WaterStove
+                //// WaterStove
                 WaterStoveInputTemperature = _heatingSystem.IWaterStove.InputTemperature,
                 WaterStoveOutputTemperature = _heatingSystem.IWaterStove.OutputTemperature,
                 WaterStoveFlow = _heatingSystem.IWaterStove.Flow,
 
-                // GazBoiler
+                //// GazBoiler
                 GazBoilerInputTemperature = _heatingSystem.IGazBoiler.InputTemperature,
                 GazBoilerOutputTemperature = _heatingSystem.IGazBoiler.OutputTemperature,
                 GazBoilerFlow = _heatingSystem.IGazBoiler.Flow,
 
-                // Home
+                //// Home
                 HomeInsideTemperature = _heatingSystem.IHome.InsideTemperature
             });
         }
