@@ -7,6 +7,7 @@ using Woopsa;
 using System.Timers;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
+using MongoDB.Bson;
 
 namespace Sebasol12Pieds
 {
@@ -19,6 +20,8 @@ namespace Sebasol12Pieds
             // Configure MongoDb
             var client = new MongoClient("mongodb://192.168.1.22:27017");
             var database = client.GetDatabase("Sebasol12Pieds");
+            if (!database.Ping())
+                throw new Exception("Could not connect to MongoDb");
             _measurementsCollection = database.GetCollection<Measurement>("Measurements");
 
             // Configure Timer
@@ -45,7 +48,12 @@ namespace Sebasol12Pieds
         private static void CallBack()
         {
             Console.Write("StartTime : " + DateTime.Now.ToString("hh:mm:ss.fff"));
+            AddMeasurement();
+            Console.WriteLine("\tEndTime : " + DateTime.Now.ToString("hh:mm:ss.fff"));
+        }
 
+        private static void AddMeasurement()
+        {
             _measurementsCollection.InsertOne(new Measurement()
             {
                 DateTime = DateTime.Now,
@@ -72,8 +80,6 @@ namespace Sebasol12Pieds
                 // Home
                 HomeInsideTemperature = _heatingSystem.IHome.InsideTemperature
             });
-
-            Console.WriteLine("\tEndTime : " + DateTime.Now.ToString("hh:mm:ss.fff"));
         }
 
         private static int MilliSecondsLeftTilTheMinute()
@@ -119,5 +125,16 @@ namespace Sebasol12Pieds
 
         // Home
         public double HomeInsideTemperature { get; set; }
+    }
+
+    public static class MongoDbExt
+    {
+        public static bool Ping(this IMongoDatabase db, int secondToWait = 1)
+        {
+            if (secondToWait <= 0)
+                throw new ArgumentOutOfRangeException("secondToWait", secondToWait, "Must be at least 1 second");
+
+            return db.RunCommandAsync((Command<MongoDB.Bson.BsonDocument>)"{ping:1}").Wait(secondToWait * 1000);
+        }
     }
 }
