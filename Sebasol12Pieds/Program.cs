@@ -5,25 +5,17 @@ using System.Text;
 using System.Threading.Tasks;
 using Woopsa;
 using System.Timers;
-using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Driver;
-using MongoDB.Bson;
+using Dropbox.Api;
+using Dropbox.Api.Files;
+using System.IO;
 
 namespace Sebasol12Pieds
 {
     class Program
     {
         private static Timer _timer;
-        private static IMongoCollection<Measurement> _measurementsCollection;
         static void Main(string[] args)
         {
-            // Configure MongoDb
-            var client = new MongoClient("mongodb://192.168.1.22:27017");
-            var database = client.GetDatabase("Sebasol12Pieds");
-            if (!database.Ping())
-                throw new Exception("Could not connect to MongoDb");
-            _measurementsCollection = database.GetCollection<Measurement>("Measurements");
-
             // Configure Timer
             _timer = new Timer();
             _timer.Elapsed += timer_Tick;
@@ -48,13 +40,13 @@ namespace Sebasol12Pieds
         private static void CallBack()
         {
             Console.Write("StartTime : " + DateTime.Now.ToString("hh:mm:ss.fff"));
-            AddMeasurement();
+            SaveMeasurement();
             Console.WriteLine("\tEndTime : " + DateTime.Now.ToString("hh:mm:ss.fff"));
         }
 
-        private static void AddMeasurement()
+        private static void SaveMeasurement()
         {
-            _measurementsCollection.InsertOne(new Measurement()
+            Measurement measurement = new Measurement()
             {
                 DateTime = DateTime.Now,
                 // Accumulator
@@ -79,7 +71,44 @@ namespace Sebasol12Pieds
 
                 //// Home
                 HomeInsideTemperature = _heatingSystem.IHome.InsideTemperature
-            });
+            };
+
+            using (var dbx = new DropboxClient("YVB8BFgSwpgAAAAAAAAdV7JrQdRZ7l0KxdfTgpZw85JvfDx-uchXAut--eYPikk0"))
+            {
+                string dropboxFile = Download(dbx, "", "Mesures.csv");
+                dropboxFile += "\n";
+                dropboxFile += measurement.ToString();
+                Upload(dbx, "", "Mesures.csv", dropboxFile);
+            }
+        }
+
+        static void Upload(DropboxClient dbx, string folder, string file, string content)
+        {
+            using (var mem = new MemoryStream(Encoding.UTF8.GetBytes(content)))
+            {
+                var task = dbx.Files.UploadAsync(
+                    folder + "/" + file,
+                    WriteMode.Overwrite.Instance,
+                    body: mem);
+                task.Wait();
+            }
+        }
+
+        static string Download(DropboxClient dbx, string folder, string file)
+        {
+            string result = "";
+
+            var taskFindFile = dbx.Files.DownloadAsync(folder + "/" + file);
+            var response = taskFindFile.Result;
+            taskFindFile.Wait();
+
+            var taskGetContent = response.GetContentAsStringAsync();
+            result = taskGetContent.Result;
+            taskGetContent.Wait();
+
+            response.Dispose();
+
+            return result;
         }
 
         private static int MilliSecondsLeftTilTheMinute()
@@ -95,46 +124,6 @@ namespace Sebasol12Pieds
                 interval = 60 * 1000;
             }
             return interval;
-        }
-    }
-
-    public class Measurement
-    {
-        [BsonDateTimeOptions(Kind = DateTimeKind.Local)]
-        public DateTime DateTime { get; set; }
-
-        // Accumulator
-        public double AccumulatorTopTemperature { get; set; }
-        public double AccumulatorCenterTemperature { get; set; }
-        public double AccumulatorBottomTemperature { get; set; }
-
-        // SolarPanel
-        public double SolarPanelInputTemperature { get; set; }
-        public double SolarPanelOutputTemperature { get; set; }
-        public double SolarPanelFlow { get; set; }
-
-        // WaterStove
-        public double WaterStoveInputTemperature { get; set; }
-        public double WaterStoveOutputTemperature { get; set; }
-        public double WaterStoveFlow { get; set; }
-
-        // GazBoiler
-        public double GazBoilerInputTemperature { get; set; }
-        public double GazBoilerOutputTemperature { get; set; }
-        public double GazBoilerFlow { get; set; }
-
-        // Home
-        public double HomeInsideTemperature { get; set; }
-    }
-
-    public static class MongoDbExt
-    {
-        public static bool Ping(this IMongoDatabase db, int secondToWait = 1)
-        {
-            if (secondToWait <= 0)
-                throw new ArgumentOutOfRangeException("secondToWait", secondToWait, "Must be at least 1 second");
-
-            return db.RunCommandAsync((Command<MongoDB.Bson.BsonDocument>)"{ping:1}").Wait(secondToWait * 1000);
         }
     }
 }
