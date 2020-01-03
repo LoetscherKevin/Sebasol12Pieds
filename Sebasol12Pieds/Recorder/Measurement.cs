@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -36,7 +37,7 @@ namespace Sebasol12Pieds
         public override string ToString()
         {
             string measurement = "";
-            measurement += DateTime.ToString() + ",";
+            measurement += DateTime.ToString("dd/MM/yyyy HH:mm:ss") + ",";
 
             measurement += AccumulatorTopTemperature.ToString() + ",";
             measurement += AccumulatorCenterTemperature.ToString() + ",";

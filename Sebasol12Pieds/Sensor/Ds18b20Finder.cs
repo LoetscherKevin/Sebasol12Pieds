@@ -21,7 +21,7 @@ namespace Sebasol12Pieds
             return ds18B20Sensors;
         }
 
-        public static Ds18b20 SelectDs18B20()
+        public static Ds18b20 DisplayMenuSelectDs18B20()
         {
             List<Ds18b20> ds18B20s = FindDs18b20();
 

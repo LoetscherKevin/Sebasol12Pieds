@@ -50,7 +50,7 @@ namespace Sebasol12Pieds
 
             _menu.AddOption(new Option("Choisir la sonde d'intérieur.", () =>
             {
-                InsideTemperatureSensor = Ds18b20Finder.SelectDs18B20();
+                InsideTemperatureSensor = Ds18b20Finder.DisplayMenuSelectDs18B20();
             }));
 
             _menu.AddOption(new Option("Modifier les paramètres de la sonde d'intérieur.", () =>

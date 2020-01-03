@@ -86,12 +86,12 @@ namespace Sebasol12Pieds
 
             Menu.AddOption(new Option("Choisir la sonde d'entrée.", () =>
             {
-                InputTemperatureSensor = Ds18b20Finder.SelectDs18B20();
+                InputTemperatureSensor = Ds18b20Finder.DisplayMenuSelectDs18B20();
             }));
 
             Menu.AddOption(new Option("Choisir la sonde de sortie.", () =>
             {
-                OutputTemperatureSensor = Ds18b20Finder.SelectDs18B20();
+                OutputTemperatureSensor = Ds18b20Finder.DisplayMenuSelectDs18B20();
             }));
 
             Menu.AddOption(new Option("Modifier les paramètres de la sonde d'entrée.", () =>

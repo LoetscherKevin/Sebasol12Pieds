@@ -73,17 +73,17 @@ namespace Sebasol12Pieds
 
             _menu.AddOption(new Option("Modifier la sonde du haut.", () =>
             {
-                TopTemperatureSensor = Ds18b20Finder.SelectDs18B20();
+                TopTemperatureSensor = Ds18b20Finder.DisplayMenuSelectDs18B20();
             }));
 
             _menu.AddOption(new Option("Modifier la sonde du centre.", () =>
             {
-                CenterTemperatureSensor = Ds18b20Finder.SelectDs18B20();
+                CenterTemperatureSensor = Ds18b20Finder.DisplayMenuSelectDs18B20();
             }));
 
             _menu.AddOption(new Option("Modifier la sonde du bas.", () =>
             {
-                BottomTemperatureSensor = Ds18b20Finder.SelectDs18B20();
+                BottomTemperatureSensor = Ds18b20Finder.DisplayMenuSelectDs18B20();
             }));
 
             _menu.AddOption(new Option("Modifier les paramètres de la sonde du haut.", () =>
