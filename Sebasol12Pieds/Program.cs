@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Woopsa;
 using System.Timers;
 using Dropbox.Api;
 using Dropbox.Api.Files;
@@ -16,17 +15,27 @@ namespace Sebasol12Pieds
         private static Timer _timer;
         static void Main(string[] args)
         {
+            HeatingSystem heatingSystem;
+            if (File.Exists("/home/pi/Programs/Config.dat"))
+            {
+                Console.WriteLine("Deserialization HeatingSystem with Congig.dat file.");
+                heatingSystem = FileSerializer.Deserialize<HeatingSystem>("/home/pi/Programs/Config.dat");
+            }
+            else
+            {
+                Console.WriteLine("New HeatingSystem.");
+                heatingSystem = new HeatingSystem();
+            }
+
+            _heatingSystem = heatingSystem;
+
             // Configure Timer
             _timer = new Timer();
             _timer.Elapsed += timer_Tick;
             _timer.Interval = MilliSecondsLeftTilTheMinute();
             _timer.Enabled = true;
 
-            HeatingSystem heatingSystem = new HeatingSystem();
-            _heatingSystem = heatingSystem;
-            WoopsaServer server = new WoopsaServer(heatingSystem,8080);
             heatingSystem.StartMenu();
-            server.Dispose();
         }
 
         private static IHeatingSystem _heatingSystem;
@@ -39,9 +48,9 @@ namespace Sebasol12Pieds
 
         private static void CallBack()
         {
-            Console.Write("StartTime : " + DateTime.Now.ToString("hh:mm:ss.fff"));
+            Console.Write("StartTime : " + DateTime.Now.ToString("HH:mm:ss.fff"));
             SaveMeasurement();
-            Console.WriteLine("\tEndTime : " + DateTime.Now.ToString("hh:mm:ss.fff"));
+            Console.WriteLine("\tEndTime : " + DateTime.Now.ToString("HH:mm:ss.fff"));
         }
 
         private static void SaveMeasurement()
@@ -73,13 +82,40 @@ namespace Sebasol12Pieds
                 HomeInsideTemperature = _heatingSystem.IHome.InsideTemperature
             };
 
-            using (var dbx = new DropboxClient("YVB8BFgSwpgAAAAAAAAdV7JrQdRZ7l0KxdfTgpZw85JvfDx-uchXAut--eYPikk0"))
+            // Dropbox token MesuresSebasol12Pieds         : mwjty1tHx4AAAAAAAAAADQSNFW_lRmxl5YHKo286OHkUgvPw9hqalSfVSvQiMYlZ
+            // Dropbox token kevin.loetscher1337@gmail.com : YVB8BFgSwpgAAAAAAAAdV7JrQdRZ7l0KxdfTgpZw85JvfDx-uchXAut--eYPikk0
+            using (var dbx = new DropboxClient("mwjty1tHx4AAAAAAAAAADQSNFW_lRmxl5YHKo286OHkUgvPw9hqalSfVSvQiMYlZ"))
             {
-                string dropboxFile = Download(dbx, "", "Mesures.csv");
-                dropboxFile += "\n";
-                dropboxFile += measurement.ToString();
-                Upload(dbx, "", "Mesures.csv", dropboxFile);
+                string fileName = "Mesures_" + measurement.DateTime.Month.ToString() + "_" + measurement.DateTime.Year.ToString() + ".csv";
+                string content;
+                if (FileExist(dbx, "", fileName))
+                {
+                    content = Download(dbx, "", fileName);
+                    content += "\n";
+                    content += measurement.ToString();
+                    Upload(dbx, "", fileName, content);
+                }
+                else
+                {
+                    content = "Date - heure, Température accumulateur haut, Température accumulateur centre, Température accumulateur bas,  Température entrée panneaux solaires, Température sortie panneaux solaires, débit panneaux solaires, Température entrée poêle, Température sortie poêle, débit poêle, Température entrée chaudière, Température sortie chaudière, débit chaudière, Température intérieur maison, Température extérieur maison";
+                    content += "\n";
+                    content += measurement.ToString();
+                    Upload(dbx, "", fileName, content);
+                }
             }
+        }
+
+        static bool FileExist(DropboxClient dbx, string folder, string file)
+        {
+            try
+            {
+                Download(dbx, folder, file);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+            return true;
         }
 
         static void Upload(DropboxClient dbx, string folder, string file, string content)

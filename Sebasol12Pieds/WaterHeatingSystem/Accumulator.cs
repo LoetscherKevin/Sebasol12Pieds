@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Sebasol12Pieds
 {
-    public class Accumulator : IAcumulator
+    [Serializable]
+    public class Accumulator : IAcumulator, ISerializable
     {
         public Accumulator(Ds18b20 topTemperatureSensor, Ds18b20 centerTemperatureSensor, Ds18b20 bottomTemperatureSensor)
         {
@@ -132,6 +134,23 @@ namespace Sebasol12Pieds
             {
                 _menu.Stop = true;
             }));
+        }
+
+        protected Accumulator(SerializationInfo info, StreamingContext ctxt)
+        {
+            TopTemperatureSensor = (Ds18b20)info.GetValue("TopTemperatureSensor", typeof(Ds18b20));
+            CenterTemperatureSensor = (Ds18b20)info.GetValue("CenterTemperatureSensor", typeof(Ds18b20));
+            BottomTemperatureSensor = (Ds18b20)info.GetValue("BottomTemperatureSensor", typeof(Ds18b20));
+
+            _menu = new Menu("Accumulateur : ");
+            InitilizeMenu();
+        }
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("TopTemperatureSensor", TopTemperatureSensor, typeof(Ds18b20));
+            info.AddValue("CenterTemperatureSensor", CenterTemperatureSensor, typeof(Ds18b20));
+            info.AddValue("BottomTemperatureSensor", BottomTemperatureSensor, typeof(Ds18b20));
         }
     }
 }

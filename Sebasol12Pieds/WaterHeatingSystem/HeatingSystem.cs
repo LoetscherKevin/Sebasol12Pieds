@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 
 namespace Sebasol12Pieds
 {
-   public class HeatingSystem: IHeatingSystem
+    [Serializable]
+    public class HeatingSystem: IHeatingSystem, ISerializable
     {
         public HeatingSystem()
         {
@@ -14,7 +17,7 @@ namespace Sebasol12Pieds
             WaterStove = new WaterHeater(null, null, 12.0/60.0, "Poêle");
             Accumulator = new Accumulator(null, null, null);
             GazBoiler = new WaterHeater(null, null, 20.0 / 60.0, "Chaudière");
-            Home = new Home(null);
+            Home = new Home(null, null);
 
             _menu = new Menu("******************* Sebasol 12 Pieds *******************");
             InitilizeMenu();
@@ -24,8 +27,10 @@ namespace Sebasol12Pieds
         public WaterHeater WaterStove { get; set; }
         public WaterHeater GazBoiler { get; set; }
         public Accumulator Accumulator { get; set; }
+        [XmlIgnore]
         public Home Home { get; set; }
 
+        [XmlIgnore]
         public string Infos
         {
             get
@@ -89,6 +94,12 @@ namespace Sebasol12Pieds
                 Accumulator.StartMenu();
             }));
 
+            _menu.AddOption(new Option("Sauver les paramètres", () =>
+            {
+                SaveParameters();
+                _menu.Display();
+            }));
+
             _menu.AddOption(new Option("Modifier les paramètres de la maison.", () =>
             {
                 Home.StartMenu();
@@ -98,6 +109,31 @@ namespace Sebasol12Pieds
             {
                 _menu.Stop = true;
             }));
+        }
+
+        private void SaveParameters()
+        {
+            FileSerializer.Serialize("/home/pi/Programs/Config.dat", this);
+        }
+
+        protected HeatingSystem(SerializationInfo info, StreamingContext ctxt)
+        {
+            SolarPanel = (WaterHeater)info.GetValue("SolarPanel", typeof(WaterHeater));
+            WaterStove = (WaterHeater)info.GetValue("WaterStove", typeof(WaterHeater));
+            GazBoiler = (WaterHeater)info.GetValue("GazBoiler", typeof(WaterHeater));
+            Accumulator = (Accumulator)info.GetValue("Accumulator", typeof(Accumulator));
+            Home = (Home)info.GetValue("Home", typeof(Home));
+            _menu = new Menu("******************* Sebasol 12 Pieds *******************");
+            InitilizeMenu();
+        }
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("SolarPanel", SolarPanel, typeof(WaterHeater));
+            info.AddValue("WaterStove", WaterStove, typeof(WaterHeater));
+            info.AddValue("GazBoiler", GazBoiler, typeof(WaterHeater));
+            info.AddValue("Accumulator", Accumulator, typeof(Accumulator));
+            info.AddValue("Home", Home, typeof(Home));
         }
 
         private Menu _menu;

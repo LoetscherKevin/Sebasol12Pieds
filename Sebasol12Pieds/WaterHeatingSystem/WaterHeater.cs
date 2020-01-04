@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
+using System.Security.Permissions;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Sebasol12Pieds
 {
-    public class WaterHeater : IWaterHeater
+    [Serializable]
+    public class WaterHeater : IWaterHeater, ISerializable
     {
         public WaterHeater(Ds18b20 inputTemperatureSensor, Ds18b20 outputTemperatureSensor, double flow, string name)
         {
@@ -131,6 +134,26 @@ namespace Sebasol12Pieds
             {
                 Menu.Stop = true;
             }));
+        }
+
+        protected WaterHeater(SerializationInfo info, StreamingContext ctxt)
+        {
+            InputTemperatureSensor = (Ds18b20)info.GetValue("InputTemperatureSensor",typeof(Ds18b20));
+            OutputTemperatureSensor = (Ds18b20)info.GetValue("OutputTemperatureSensor", typeof(Ds18b20));
+            Flow = info.GetDouble("Flow");
+            Name = info.GetString("Name");
+
+            Menu = new Menu(Name + ": ");
+            InitilizeMenu();
+        }
+
+        [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.SerializationFormatter)]
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("InputTemperatureSensor", InputTemperatureSensor, typeof(Ds18b20));
+            info.AddValue("OutputTemperatureSensor", OutputTemperatureSensor, typeof(Ds18b20));
+            info.AddValue("Flow", Flow, typeof(double));
+            info.AddValue("Name", Name, typeof(string));
         }
     }
 }

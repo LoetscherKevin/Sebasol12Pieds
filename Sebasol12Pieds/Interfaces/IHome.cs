@@ -9,5 +9,6 @@ namespace Sebasol12Pieds
     public interface IHome
     {
         double InsideTemperature { get; }
+        double OutsideTemperature { get; }
     }
 }
