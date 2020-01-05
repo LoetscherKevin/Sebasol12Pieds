@@ -13,6 +13,7 @@ namespace Sebasol12Pieds
     class Program
     {
         private static Timer _timer;
+        private static string _dropboxToken;
         static void Main(string[] args)
         {
             HeatingSystem heatingSystem;
@@ -28,6 +29,8 @@ namespace Sebasol12Pieds
             }
 
             _heatingSystem = heatingSystem;
+
+            _dropboxToken = File.ReadAllText("/home/pi/Programs/DropboxConfig.txt");
 
             // Configure Timer
             _timer = new Timer();
@@ -63,30 +66,29 @@ namespace Sebasol12Pieds
                 AccumulatorCenterTemperature = _heatingSystem.IAccumulator.CenterTemperature,
                 AccumulatorBottomTemperature = _heatingSystem.IAccumulator.BottomTemperature,
 
-                //// SolarPanel
+                // SolarPanel
                 SolarPanelInputTemperature = _heatingSystem.ISolarPanel.InputTemperature,
                 SolarPanelOutputTemperature = _heatingSystem.ISolarPanel.OutputTemperature,
                 SolarPanelFlow = _heatingSystem.ISolarPanel.Flow,
 
-                //// WaterStove
+                // WaterStove
                 WaterStoveInputTemperature = _heatingSystem.IWaterStove.InputTemperature,
                 WaterStoveOutputTemperature = _heatingSystem.IWaterStove.OutputTemperature,
                 WaterStoveFlow = _heatingSystem.IWaterStove.Flow,
 
-                //// GazBoiler
+                // GazBoiler
                 GazBoilerInputTemperature = _heatingSystem.IGazBoiler.InputTemperature,
                 GazBoilerOutputTemperature = _heatingSystem.IGazBoiler.OutputTemperature,
                 GazBoilerFlow = _heatingSystem.IGazBoiler.Flow,
 
-                //// Home
+                // Home
                 HomeInsideTemperature = _heatingSystem.IHome.InsideTemperature
             };
 
-            // Dropbox token MesuresSebasol12Pieds         : mwjty1tHx4AAAAAAAAAADQSNFW_lRmxl5YHKo286OHkUgvPw9hqalSfVSvQiMYlZ
-            // Dropbox token kevin.loetscher1337@gmail.com : YVB8BFgSwpgAAAAAAAAdV7JrQdRZ7l0KxdfTgpZw85JvfDx-uchXAut--eYPikk0
-            using (var dbx = new DropboxClient("mwjty1tHx4AAAAAAAAAADQSNFW_lRmxl5YHKo286OHkUgvPw9hqalSfVSvQiMYlZ"))
+            // mwjty1tHx4AAAAAAAAAAFBRY1URwO_26TNyRcKDjmWxuoqAasEvomt6RPiSQHBks
+            using (var dbx = new DropboxClient(_dropboxToken))
             {
-                string fileName = "Mesures_" + measurement.DateTime.Month.ToString() + "_" + measurement.DateTime.Year.ToString() + ".csv";
+                string fileName = "Mesures_" + measurement.DateTime.Year.ToString() + "_" + measurement.DateTime.Month.ToString() + ".csv";
                 string content;
                 if (FileExist(dbx, "", fileName))
                 {
