@@ -88,7 +88,7 @@ namespace Sebasol12Pieds
             // mwjty1tHx4AAAAAAAAAAFBRY1URwO_26TNyRcKDjmWxuoqAasEvomt6RPiSQHBks
             using (var dbx = new DropboxClient(_dropboxToken))
             {
-                string fileName = "Mesures_" + measurement.DateTime.Year.ToString() + "_" + measurement.DateTime.Month.ToString() + ".csv";
+                string fileName = "Mesures_" +  measurement.DateTime.Year.ToString() + "_" + (measurement.DateTime.Month<10?"0":"").ToString() + measurement.DateTime.Month.ToString() + ".csv";
                 string content;
                 if (FileExist(dbx, "", fileName))
                 {
