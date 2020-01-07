@@ -89,7 +89,7 @@ namespace Sebasol12Pieds
             using (var dbx = new DropboxClient(_dropboxToken))
             {
                 string fileName = "Mesures_" +  measurement.DateTime.Year.ToString() + "_" + (measurement.DateTime.Month<10?"0":"").ToString() + measurement.DateTime.Month.ToString() + ".csv";
-                string content;
+                string content = "";
                 if (FileExist(dbx, "", fileName))
                 {
                     content = Download(dbx, "", fileName);
@@ -99,7 +99,40 @@ namespace Sebasol12Pieds
                 }
                 else
                 {
-                    content = "Date - heure, Température accumulateur haut, Température accumulateur centre, Température accumulateur bas,  Température entrée panneaux solaires, Température sortie panneaux solaires, débit panneaux solaires, Température entrée poêle, Température sortie poêle, débit poêle, Température entrée chaudière, Température sortie chaudière, débit chaudière, Température intérieur maison, Température extérieur maison";
+                    List<string> columnName = new List<string>()
+                    {
+                        "Date", 
+                        "Heure",
+                        "Annee",
+                        "Mois",
+                        "Jour",
+                        "Heure",
+                        "Minute",
+                        "Seconde",
+                        "Milliseconde",
+                        "Tmp accu haut", 
+                        "Tmp accu centre", 
+                        "Tmp accu bas",  
+                        "Tmp sol in", 
+                        "Tmp sol out", 
+                        "Debit sol",
+                        "Tmp poele in",
+                        "Tmp poele out", 
+                        "Debit poele", 
+                        "Tmp gaz in", 
+                        "Tmp gaz out", 
+                        "Debit gaz", 
+                        "Tmp maison int", 
+                        "Tmp maison ext"
+                    };
+
+                    for (int i = 0; i < columnName.Count; i++)
+                    {
+                        if (i == columnName.Count - 1)
+                            content += columnName[i];
+                        else
+                            content += columnName[i] + ";";
+                    }
                     content += "\n";
                     content += measurement.ToString();
                     Upload(dbx, "", fileName, content);

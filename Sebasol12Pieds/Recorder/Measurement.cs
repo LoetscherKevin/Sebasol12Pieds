@@ -36,9 +36,19 @@ namespace Sebasol12Pieds
         public double HomeOutsideTemperature { get; set; }
         public override string ToString()
         {
-            string delimiter = ",";
+            string delimiter = ";";
             string measurement = "";
-            measurement += DateTime.ToString("dd.MM.yyyy HH:mm:ss") + delimiter;
+            measurement += DateTime.ToString("dd.MM.yyyy") + delimiter;
+            measurement += DateTime.ToString("HH:mm:ss") + delimiter;
+
+            measurement += DateTime.Year.ToString() + delimiter;
+            measurement += DateTime.Month.ToString() + delimiter;
+            measurement += DateTime.Day.ToString() + delimiter;
+
+            measurement += DateTime.Hour.ToString() + delimiter;
+            measurement += DateTime.Minute.ToString() + delimiter;
+            measurement += DateTime.Second.ToString() + delimiter;
+            measurement += DateTime.Millisecond.ToString().ToString() + delimiter;
 
             measurement += AccumulatorTopTemperature.ToString() + delimiter;
             measurement += AccumulatorCenterTemperature.ToString() + delimiter;
