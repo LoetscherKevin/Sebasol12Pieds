@@ -34,16 +34,37 @@ namespace Sebasol12Pieds
         // Home
         public double HomeInsideTemperature { get; set; }
         public double HomeOutsideTemperature { get; set; }
-        public override string ToString()
-        {
-            string delimiter = ";";
-            string measurement = "";
-            measurement += DateTime.ToString("dd.MM.yyyy") + delimiter;
-            measurement += DateTime.ToString("HH:mm:ss") + delimiter;
 
-            measurement += DateTime.Year.ToString() + delimiter;
-            measurement += DateTime.Month.ToString() + delimiter;
-            measurement += DateTime.Day.ToString() + delimiter;
+        public string ToCsv(string delimiter)
+        {
+            string measurement = "";
+            measurement += DateTime.ToString("dd.MM.yyyy HH:mm:ss") + delimiter;
+
+            measurement += AccumulatorTopTemperature.ToString() + delimiter;
+            measurement += AccumulatorCenterTemperature.ToString() + delimiter;
+            measurement += AccumulatorBottomTemperature.ToString() + delimiter;
+
+            measurement += SolarPanelInputTemperature.ToString() + delimiter;
+            measurement += SolarPanelOutputTemperature.ToString() + delimiter;
+            measurement += SolarPanelFlow.ToString() + delimiter;
+
+            measurement += WaterStoveInputTemperature.ToString() + delimiter;
+            measurement += WaterStoveOutputTemperature.ToString() + delimiter;
+            measurement += WaterStoveFlow.ToString() + delimiter;
+
+            measurement += GazBoilerInputTemperature.ToString() + delimiter;
+            measurement += GazBoilerOutputTemperature.ToString() + delimiter;
+            measurement += GazBoilerFlow.ToString() + delimiter;
+
+            measurement += HomeInsideTemperature.ToString() + delimiter;
+            measurement += HomeOutsideTemperature.ToString();
+            return measurement;
+        }
+
+        public string ToCsvPerDay(string delimiter)
+        {
+            string measurement = "";
+            measurement += DateTime.ToString("HH:mm:ss") + delimiter;
 
             measurement += DateTime.Hour.ToString() + delimiter;
             measurement += DateTime.Minute.ToString() + delimiter;

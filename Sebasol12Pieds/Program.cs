@@ -88,28 +88,21 @@ namespace Sebasol12Pieds
             // mwjty1tHx4AAAAAAAAAAFBRY1URwO_26TNyRcKDjmWxuoqAasEvomt6RPiSQHBks
             using (var dbx = new DropboxClient(_dropboxToken))
             {
+                // Save by month
                 string fileName = "Mesures_" +  measurement.DateTime.Year.ToString() + "_" + (measurement.DateTime.Month<10?"0":"").ToString() + measurement.DateTime.Month.ToString() + ".csv";
                 string content = "";
                 if (FileExist(dbx, "", fileName))
                 {
                     content = Download(dbx, "", fileName);
                     content += "\n";
-                    content += measurement.ToString();
+                    content += measurement.ToCsv(";");
                     Upload(dbx, "", fileName, content);
                 }
                 else
                 {
                     List<string> columnName = new List<string>()
                     {
-                        "Date", 
-                        "Heure",
-                        "Annee",
-                        "Mois",
-                        "Jour",
-                        "Heure",
-                        "Minute",
-                        "Seconde",
-                        "Milliseconde",
+                        "Date complete", 
                         "Tmp accu haut", 
                         "Tmp accu centre", 
                         "Tmp accu bas",  
@@ -134,7 +127,55 @@ namespace Sebasol12Pieds
                             content += columnName[i] + ";";
                     }
                     content += "\n";
-                    content += measurement.ToString();
+                    content += measurement.ToCsv(";");
+                    Upload(dbx, "", fileName, content);
+                }
+
+
+                // Save by day
+                fileName = "Mesures_" + measurement.DateTime.Year.ToString() + "_" + (measurement.DateTime.Month < 10 ? "0" : "").ToString() + measurement.DateTime.Month.ToString() + "_" + (measurement.DateTime.Day < 10 ? "0" : "").ToString() + measurement.DateTime.Day.ToString() + ".csv";
+                content = "";
+                if (FileExist(dbx, "", fileName))
+                {
+                    content = Download(dbx, "", fileName);
+                    content += "\n";
+                    content += measurement.ToCsvPerDay(";");
+                    Upload(dbx, "", fileName, content);
+                }
+                else
+                {
+                    List<string> columnName = new List<string>()
+                    {
+                        "Heure complete",
+                        "Heure",
+                        "Minute",
+                        "Seconde",
+                        "Milliseconde",
+                        "Tmp accu haut",
+                        "Tmp accu centre",
+                        "Tmp accu bas",
+                        "Tmp sol in",
+                        "Tmp sol out",
+                        "Debit sol",
+                        "Tmp poele in",
+                        "Tmp poele out",
+                        "Debit poele",
+                        "Tmp gaz in",
+                        "Tmp gaz out",
+                        "Debit gaz",
+                        "Tmp maison int",
+                        "Tmp maison ext"
+                    };
+
+                    for (int i = 0; i < columnName.Count; i++)
+                    {
+                        if (i == columnName.Count - 1)
+                            content += columnName[i];
+                        else
+                            content += columnName[i] + ";";
+                    }
+                    content += "\n";
+                    content += measurement.ToCsvPerDay(";");
                     Upload(dbx, "", fileName, content);
                 }
             }
